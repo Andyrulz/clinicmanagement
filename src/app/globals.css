@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Force white background for the entire application */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Ensure white background regardless of system preference */
+html {
+  background-color: #ffffff !important;
+  min-height: 100vh;
+}
+
+body {
+  background-color: #ffffff !important;
+  color: #171717;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure all main containers have white background */
+#__next {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
