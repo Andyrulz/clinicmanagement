@@ -21,6 +21,15 @@ export interface UpdateVisitStatusData {
   notes?: string
 }
 
+export interface UpdateVisitData {
+  visit_id: string
+  visit_date?: string
+  visit_time?: string
+  visit_type?: 'new' | 'follow_up'
+  consultation_fee?: number
+  chief_complaints?: string
+}
+
 export interface CreateVitalsData {
   visit_id: string
   patient_id: string
@@ -264,6 +273,46 @@ class VisitService {
       return visit
     } catch (error) {
       console.error('Error updating visit status:', error)
+      throw error
+    }
+  }
+
+  // Update visit details
+  async updateVisit(data: UpdateVisitData): Promise<PatientVisit> {
+    try {
+      const tenantId = await this.getCurrentUserTenantId()
+      const currentUserId = await this.getCurrentUserId()
+
+      const updateData: Record<string, unknown> = {
+        updated_by: currentUserId
+      }
+
+      // Only update fields that are provided
+      if (data.visit_date !== undefined) updateData.visit_date = data.visit_date
+      if (data.visit_time !== undefined) updateData.visit_time = data.visit_time
+      if (data.visit_type !== undefined) updateData.visit_type = data.visit_type
+      if (data.consultation_fee !== undefined) updateData.consultation_fee = data.consultation_fee
+      if (data.chief_complaints !== undefined) updateData.chief_complaints = data.chief_complaints
+
+      const { data: visit, error } = await this.supabase
+        .from('patient_visits')
+        .update(updateData)
+        .eq('id', data.visit_id)
+        .eq('tenant_id', tenantId)
+        .select(`
+          *,
+          patient:patients(*),
+          doctor:users!patient_visits_doctor_id_fkey(id, full_name, role)
+        `)
+        .single()
+
+      if (error) {
+        throw new Error(`Failed to update visit: ${error.message}`)
+      }
+
+      return visit
+    } catch (error) {
+      console.error('Error updating visit:', error)
       throw error
     }
   }

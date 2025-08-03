@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { visitService } from '@/lib/services/visit-service'
 import type { PatientVisit } from '@/types/patient'
 
@@ -94,9 +96,18 @@ export default function VisitsDashboard() {
       <div className="container mx-auto p-6">
       {/* Header */}
       <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Visit Management</h1>
-          <p className="text-gray-800">Manage patient visits and appointments</p>
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/dashboard"
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Dashboard
+          </Link>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Visit Management</h1>
+            <p className="text-gray-800">Manage patient visits and appointments</p>
+          </div>
         </div>
         <button
           onClick={() => router.push('/dashboard/visits/create')}

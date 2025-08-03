@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search, Filter, Users } from 'lucide-react';
+import { Plus, Search, Filter, Users, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import PatientRegistration from '@/components/patients/patient-registration-simple';
 import { Patient } from '@/types/patient';
 import { searchPatients } from '@/lib/services/patient-service';
@@ -99,11 +100,20 @@ export default function PatientsPage() {
         {/* Header */}
         <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
-              <p className="text-gray-700 font-medium mt-1">
-                Register and manage patients in your clinic
-              </p>
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/dashboard"
+                className="flex items-center text-gray-600 hover:text-gray-900"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Dashboard
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
+                <p className="text-gray-700 font-medium mt-1">
+                  Register and manage patients in your clinic
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setShowRegistration(true)}

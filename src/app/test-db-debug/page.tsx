@@ -72,7 +72,7 @@ export default function TestSupabase() {
         return
       }
       
-      console.log('✅ Availability table accessible')
+      console.log('✅ Availability table accessible', availability?.length ? `Found ${availability.length} record(s)` : 'No records found')
       
       // Test 5: Try a simple insert test (then delete it)
       console.log('5️⃣ Testing availability insert...')
@@ -105,7 +105,7 @@ export default function TestSupabase() {
       
       if (insertError) {
         console.error('❌ Insert error:', insertError)
-        alert('Insert error: ' + insertError.message + '\nDetails: ' + insertError.details)
+        alert('Insert error: ' + insertError.message + (insertError.details ? '\nDetails: ' + insertError.details : ''))
         return
       }
       
@@ -146,7 +146,7 @@ export default function TestSupabase() {
           
           <div className="p-4 bg-yellow-100 border border-yellow-400 rounded-md">
             <p className="text-yellow-800 text-sm">
-              <strong>Before running:</strong> Make sure you're logged in first!
+              <strong>Before running:</strong> Make sure you&apos;re logged in first!
             </p>
           </div>
           
@@ -172,7 +172,5 @@ export default function TestSupabase() {
         </div>
       </div>
     </div>
-  )
-}
   )
 }

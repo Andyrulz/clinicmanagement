@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LogoutButton } from '@/components/auth/logout-button'
 import { 
   Users, 
   Calendar, 
@@ -191,8 +192,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <div>
+      {/* Main Dashboard Content */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
@@ -200,8 +201,11 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-gray-600 mt-1">Welcome to your clinic management system</p>
             </div>
-            <div className="text-sm text-gray-500">
-              Last updated: {new Date().toLocaleString()}
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-500">
+                Last updated: {new Date().toLocaleString()}
+              </div>
+              <LogoutButton variant="button" showConfirmation={true} />
             </div>
           </div>
         </div>
@@ -278,13 +282,14 @@ export default function DashboardPage() {
           
           {/* Second Row of Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {canAccessTenantSettings() && (
+            {/* Doctor Availability - Available for doctors and admin */}
+            {(userRole === 'doctor' || canAccessUserManagement()) && (
               <QuickAction
-                title="Clinic Settings"
-                description="Configure clinic & tenant settings"
-                icon={<Building className="w-5 h-5 text-white" />}
-                href="/dashboard/tenant"
-                color="bg-purple-500"
+                title="Doctor Availability"
+                description="Manage doctor schedules & time slots"
+                icon={<Calendar className="w-5 h-5 text-white" />}
+                href="/dashboard/availability"
+                color="bg-orange-500"
               />
             )}
             {canAccessAnalytics() && (

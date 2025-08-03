@@ -42,10 +42,22 @@ function HomeContent() {
             <h3 className="text-lg font-semibold text-gray-800 mb-2">🧪 Test Pages</h3>
             <div className="space-y-2">
               <Link 
+                href="/test-css" 
+                className="block bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 font-medium"
+              >
+                🎨 Test CSS & Design
+              </Link>
+              <Link 
                 href="/test-supabase" 
                 className="block bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 font-medium"
               >
                 Test Supabase Connection
+              </Link>
+              <Link 
+                href="/test-db-debug" 
+                className="block bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-800 font-medium"
+              >
+                🔧 Debug Database Issues
               </Link>
               <Link 
                 href="/test-auth" 

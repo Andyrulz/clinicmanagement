@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { 
   Users, 
   Calendar, 
@@ -9,7 +10,8 @@ import {
   Activity, 
   AlertCircle,
   BarChart3,
-  Download
+  Download,
+  ArrowLeft
 } from 'lucide-react'
 
 // Import types and service separately to avoid potential circular imports
@@ -396,9 +398,18 @@ export default function AnalyticsPage() {
       <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Analytics &amp; Reports</h1>
-              <p className="text-gray-600 mt-1">Comprehensive insights into your clinic&apos;s performance</p>
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/dashboard"
+                className="flex items-center text-gray-600 hover:text-gray-900"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Dashboard
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Analytics &amp; Reports</h1>
+                <p className="text-gray-600 mt-1">Comprehensive insights into your clinic&apos;s performance</p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <DateRangeSelector

@@ -23,6 +23,7 @@ export default function VisitDetail() {
   const [updating, setUpdating] = useState(false)
   const [generatingPDF, setGeneratingPDF] = useState(false)
   const [isEditingClinical, setIsEditingClinical] = useState(false)
+  const [isEditingVisit, setIsEditingVisit] = useState(false)
   const [editingFollowUp, setEditingFollowUp] = useState(false)
   const [clinicalData, setClinicalData] = useState({
     history_of_present_illness: '',
@@ -37,6 +38,13 @@ export default function VisitDetail() {
     visit_date: '',
     visit_time: '10:00',
     consultation_fee: 0
+  })
+  const [visitFormData, setVisitFormData] = useState({
+    visit_date: '',
+    visit_time: '',
+    visit_type: 'new' as 'new' | 'follow_up',
+    consultation_fee: '',
+    chief_complaints: ''
   })
 
   useEffect(() => {
@@ -261,6 +269,55 @@ export default function VisitDetail() {
     setEditingFollowUp(true)
   }
 
+  const startEditingVisit = () => {
+    if (!visit) return
+    
+    setVisitFormData({
+      visit_date: visit.visit_date,
+      visit_time: visit.visit_time,
+      visit_type: visit.visit_type,
+      consultation_fee: visit.consultation_fee.toString(),
+      chief_complaints: visit.chief_complaints || ''
+    })
+    setIsEditingVisit(true)
+  }
+
+  const updateVisitDetails = async () => {
+    if (!visit) return
+
+    try {
+      setUpdating(true)
+      
+      const updatedVisit = await visitService.updateVisit({
+        visit_id: visit.id,
+        visit_date: visitFormData.visit_date,
+        visit_time: visitFormData.visit_time,
+        visit_type: visitFormData.visit_type,
+        consultation_fee: Number(visitFormData.consultation_fee),
+        chief_complaints: visitFormData.chief_complaints
+      })
+      
+      setVisit(updatedVisit)
+      setIsEditingVisit(false)
+    } catch (error) {
+      console.error('Error updating visit details:', error)
+      alert('Failed to update visit details. Please try again.')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const cancelEditingVisit = () => {
+    setIsEditingVisit(false)
+    setVisitFormData({
+      visit_date: '',
+      visit_time: '',
+      visit_type: 'new',
+      consultation_fee: '',
+      chief_complaints: ''
+    })
+  }
+
   const cancelEditingFollowUp = () => {
     setEditingFollowUp(false)
     setFollowUpData({
@@ -337,10 +394,10 @@ export default function VisitDetail() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard/visits')}
             className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex items-center gap-2"
           >
-            ← Back
+            ← Back to Visits
           </button>
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Visit Details</h1>
@@ -402,69 +459,152 @@ export default function VisitDetail() {
 
           {/* Visit Details */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Visit Information</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-900">Visit Number</label>
-                <p className="mt-1 text-sm text-gray-900">{visit.visit_number}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900">Doctor</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  Dr. {visit.doctor?.full_name}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900">Date & Time</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {new Date(visit.visit_date).toLocaleDateString()} at {visit.visit_time}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900">Visit Type</label>
-                <p className="mt-1 text-sm text-gray-900 capitalize">
-                  {visit.visit_type.replace('_', ' ')}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900">Consultation Fee</label>
-                <p className="mt-1 text-sm text-gray-900">₹{visit.consultation_fee}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900">Payment Status</label>
-                <div className="mt-1 flex items-center gap-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    visit.consultation_fee_paid 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {visit.consultation_fee_paid ? 'Paid' : 'Pending'}
-                  </span>
-                  
-                  {!visit.consultation_fee_paid && (
-                    <button
-                      onClick={() => updatePaymentStatus(true)}
-                      disabled={updating}
-                      className="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Visit Information</h2>
+              {visit.status === 'scheduled' && !isEditingVisit && (
+                <button
+                  onClick={startEditingVisit}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  ✏️ Edit
+                </button>
+              )}
+            </div>
+            
+            {isEditingVisit ? (
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Visit Date</label>
+                    <input
+                      type="date"
+                      value={visitFormData.visit_date}
+                      onChange={(e) => setVisitFormData({...visitFormData, visit_date: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Visit Time</label>
+                    <input
+                      type="time"
+                      value={visitFormData.visit_time}
+                      onChange={(e) => setVisitFormData({...visitFormData, visit_time: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Visit Type</label>
+                    <select
+                      value={visitFormData.visit_type}
+                      onChange={(e) => setVisitFormData({...visitFormData, visit_type: e.target.value as 'new' | 'follow_up'})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      Mark as Paid
-                    </button>
-                  )}
-                  
-                  {visit.consultation_fee_paid && (
-                    <button
-                      onClick={() => updatePaymentStatus(false)}
-                      disabled={updating}
-                      className="px-3 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Mark as Pending
-                    </button>
-                  )}
+                      <option value="new">New Visit</option>
+                      <option value="follow_up">Follow-up Visit</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Consultation Fee (₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={visitFormData.consultation_fee}
+                      onChange={(e) => setVisitFormData({...visitFormData, consultation_fee: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Chief Complaints</label>
+                  <textarea
+                    value={visitFormData.chief_complaints}
+                    onChange={(e) => setVisitFormData({...visitFormData, chief_complaints: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter patient's chief complaints..."
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={updateVisitDetails}
+                    disabled={updating}
+                    className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {updating ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button
+                    onClick={cancelEditingVisit}
+                    disabled={updating}
+                    className="px-4 py-2 bg-gray-500 text-white text-sm rounded-md hover:bg-gray-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900">Visit Number</label>
+                  <p className="mt-1 text-sm text-gray-900">{visit.visit_number}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900">Doctor</label>
+                  <p className="mt-1 text-sm text-gray-900">
+                    Dr. {visit.doctor?.full_name}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900">Date & Time</label>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {new Date(visit.visit_date).toLocaleDateString()} at {visit.visit_time}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900">Visit Type</label>
+                  <p className="mt-1 text-sm text-gray-900 capitalize">
+                    {visit.visit_type.replace('_', ' ')}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900">Consultation Fee</label>
+                  <p className="mt-1 text-sm text-gray-900">₹{visit.consultation_fee}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900">Payment Status</label>
+                  <div className="mt-1 flex items-center gap-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      visit.consultation_fee_paid 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {visit.consultation_fee_paid ? 'Paid' : 'Pending'}
+                    </span>
+                    
+                    {!visit.consultation_fee_paid && (
+                      <button
+                        onClick={() => updatePaymentStatus(true)}
+                        disabled={updating}
+                        className="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Mark as Paid
+                      </button>
+                    )}
+                    
+                    {visit.consultation_fee_paid && (
+                      <button
+                        onClick={() => updatePaymentStatus(false)}
+                        disabled={updating}
+                        className="px-3 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Mark as Pending
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
-            {visit.chief_complaints && (
+            {visit.chief_complaints && !isEditingVisit && (
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-900">Chief Complaints</label>
                 <p className="mt-1 text-sm text-gray-900 p-3 bg-gray-50 rounded-md">

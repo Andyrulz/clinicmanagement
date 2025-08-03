@@ -1,4 +1,5 @@
 import { Metadata, Viewport } from 'next'
+import { DashboardLayout } from '@/components/auth/dashboard-layout'
 
 export const metadata: Metadata = {
   title: 'Dashboard - Clinic Management System',
@@ -12,10 +13,14 @@ export const viewport: Viewport = {
   themeColor: '#1976d2',
 }
 
-export default function DashboardLayout({
+export default function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <DashboardLayout>
+      {children}
+    </DashboardLayout>
+  )
 }

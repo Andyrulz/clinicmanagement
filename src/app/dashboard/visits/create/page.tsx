@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { visitService } from '@/lib/services/visit-service'
 import { searchPatients } from '@/lib/services/patient-service'
-import type { Patient } from '@/types/patient'
+import { doctorAvailabilityService } from '@/lib/services/doctor-availability'
+import type { Patient, PatientVisit } from '@/types/patient'
+import type { DoctorAvailabilityWithDoctor } from '@/types/doctor-availability'
 
 interface Doctor {
   id: string
@@ -16,6 +18,9 @@ function CreateVisitForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const preSelectedPatientId = searchParams.get('patient_id')
+  const preSelectedDoctorId = searchParams.get('doctor_id')
+  const preSelectedVisitDate = searchParams.get('visit_date')
+  const preSelectedVisitTime = searchParams.get('visit_time')
   
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -23,6 +28,10 @@ function CreateVisitForm() {
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([])
+  const [doctorAvailability, setDoctorAvailability] = useState<DoctorAvailabilityWithDoctor[]>([])
+  const [loadingAvailability, setLoadingAvailability] = useState(false)
+  const [existingVisits, setExistingVisits] = useState<PatientVisit[]>([])
+  const [loadingVisits, setLoadingVisits] = useState(false)
 
   // Form data
   const [formData, setFormData] = useState({
@@ -70,16 +79,17 @@ function CreateVisitForm() {
       setPatients(patientsData.patients || [])
       setDoctors(doctorsData || [])
 
-      // Set default date and time
+      // Set default date and time, or use pre-selected values
       const now = new Date()
       const today = now.toISOString().split('T')[0]
       const currentTime = now.toTimeString().slice(0, 5)
       
       setFormData(prev => ({
         ...prev,
-        visit_date: today,
-        visit_time: currentTime,
-        patient_id: preSelectedPatientId || ''
+        visit_date: preSelectedVisitDate || today,
+        visit_time: preSelectedVisitTime || currentTime,
+        patient_id: preSelectedPatientId || '',
+        doctor_id: preSelectedDoctorId || ''
       }))
 
     } catch (error) {
@@ -87,7 +97,7 @@ function CreateVisitForm() {
     } finally {
       setLoading(false)
     }
-  }, [preSelectedPatientId])
+  }, [preSelectedPatientId, preSelectedDoctorId, preSelectedVisitDate, preSelectedVisitTime])
 
   useEffect(() => {
     loadInitialData()
@@ -107,6 +117,64 @@ function CreateVisitForm() {
       setFilteredPatients(filtered.slice(0, 20))
     }
   }, [searchTerm, patients])
+
+  // Load doctor availability and existing visits when doctor or date changes
+  useEffect(() => {
+    const loadDoctorAvailabilityAndVisits = async () => {
+      if (!formData.doctor_id || !formData.visit_date) {
+        setDoctorAvailability([])
+        setExistingVisits([])
+        return
+      }
+
+      try {
+        setLoadingAvailability(true)
+        setLoadingVisits(true)
+        const visitDate = new Date(formData.visit_date)
+        const dayOfWeek = visitDate.getDay()
+        
+        // Load availability and visits in parallel
+        const [availabilityResponse, visitsResponse] = await Promise.all([
+          doctorAvailabilityService.getDoctorAvailability(formData.doctor_id, dayOfWeek),
+          visitService.getVisits({ 
+            doctor_id: formData.doctor_id, 
+            visit_date: formData.visit_date 
+          })
+        ])
+        
+        // Process availability
+        if (availabilityResponse.success && availabilityResponse.data) {
+          // Remove duplicates by creating a map with unique time slots
+          const uniqueSlots = new Map()
+          availabilityResponse.data.forEach(availability => {
+            const key = `${availability.start_time}-${availability.end_time}`
+            if (!uniqueSlots.has(key)) {
+              uniqueSlots.set(key, availability)
+            }
+          })
+          setDoctorAvailability(Array.from(uniqueSlots.values()))
+        } else {
+          setDoctorAvailability([])
+        }
+
+        // Process visits
+        if (visitsResponse && Array.isArray(visitsResponse)) {
+          setExistingVisits(visitsResponse)
+        } else {
+          setExistingVisits([])
+        }
+      } catch (error) {
+        console.error('Error loading doctor availability and visits:', error)
+        setDoctorAvailability([])
+        setExistingVisits([])
+      } finally {
+        setLoadingAvailability(false)
+        setLoadingVisits(false)
+      }
+    }
+
+    loadDoctorAvailabilityAndVisits()
+  }, [formData.doctor_id, formData.visit_date])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -358,6 +426,125 @@ function CreateVisitForm() {
                   )}
                 </div>
               </div>
+
+              {/* Doctor Availability Display */}
+              {(formData.doctor_id && formData.visit_date) && (
+                <div className="mt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      Doctor Availability for Selected Date
+                    </h3>
+                  </div>
+                  <div className="border border-gray-200 rounded-xl p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 shadow-sm">
+                    {(loadingAvailability || loadingVisits) ? (
+                      <div className="flex items-center justify-center gap-3 py-8 text-gray-600">
+                        <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                        <span className="text-sm font-medium">Loading availability and appointments...</span>
+                      </div>
+                    ) : doctorAvailability.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-gray-200/70">
+                          <p className="text-sm text-gray-700 font-medium">
+                            Available time slots for {new Date(formData.visit_date).toLocaleDateString('en-US', { 
+                              weekday: 'long', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </p>
+                        </div>
+                        <div className="space-y-3">
+                          {doctorAvailability.map((availability, index) => {
+                            // Check if the selected visit time falls within this availability slot
+                            const isTimeInSlot = formData.visit_time && 
+                              formData.visit_time >= availability.start_time && 
+                              formData.visit_time < availability.end_time;
+                            
+                            // Find existing visits within this time slot
+                            const visitsInSlot = existingVisits
+                              .filter(visit => 
+                                visit.visit_time >= availability.start_time && 
+                                visit.visit_time < availability.end_time
+                              )
+                              .sort((a, b) => a.visit_time.localeCompare(b.visit_time))
+                            
+                            return (
+                              <div 
+                                key={index}
+                                className={`border rounded-lg transition-all duration-200 ${
+                                  isTimeInSlot 
+                                    ? 'bg-gradient-to-r from-blue-50 to-blue-100/80 border-blue-300 shadow-md' 
+                                    : 'bg-white border-gray-200 hover:border-gray-300 shadow-sm'
+                                }`}
+                              >
+                                {/* Time slot header */}
+                                <div className="flex items-center gap-3 p-4">
+                                  <span className="font-semibold text-gray-900 text-base">
+                                    {availability.start_time} - {availability.end_time}
+                                  </span>
+                                  {isTimeInSlot && (
+                                    <div className="ml-auto text-xs text-blue-700 font-medium">
+                                      Your selected time
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Existing appointments in this slot */}
+                                {visitsInSlot.length > 0 && (
+                                  <div className="px-4 pb-4">
+                                    <div className="bg-gray-50/80 rounded-lg p-3 border border-gray-100">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">
+                                          Existing Appointments ({visitsInSlot.length})
+                                        </span>
+                                      </div>
+                                      <div className="space-y-2">
+                                        {visitsInSlot.map((visit, visitIndex) => (
+                                          <div 
+                                            key={visitIndex}
+                                            className="flex items-center gap-3 text-sm bg-white px-3 py-2 rounded-md border border-gray-100 shadow-sm"
+                                          >
+                                            <span className="font-bold text-blue-600 min-w-16">{visit.visit_time}</span>
+                                            <span className="text-gray-600">-</span>
+                                            <span className="text-gray-800 font-medium">
+                                              {visit.patient?.first_name} {visit.patient?.last_name}
+                                            </span>
+                                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full ml-auto">
+                                              {visit.visit_type === 'new' ? 'New' : 'Follow-up'}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex items-start gap-2 pt-2 border-t border-gray-200/70">
+                          <div className="w-4 h-4 text-blue-500 mt-0.5">💡</div>
+                          <p className="text-xs text-gray-600 leading-relaxed">
+                            These are the doctor&apos;s available time slots. You can schedule the visit at any specific time within these periods.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full flex items-center justify-center">
+                          <span className="text-2xl">⚠️</span>
+                        </div>
+                        <p className="text-gray-700 font-semibold mb-2">No availability found</p>
+                        <p className="text-sm text-gray-500">
+                          The selected doctor doesn&apos;t have availability on {new Date(formData.visit_date).toLocaleDateString('en-US', { 
+                            weekday: 'long' 
+                          })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Consultation Fee */}
               <div>
