@@ -144,46 +144,48 @@ export default function PatientRiskDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-900 font-semibold">Loading patient risk analysis...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+          <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+          <p className="text-gray-600 font-medium">Loading patient risk analysis...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-6">
               <Link 
                 href="/dashboard"
-                className="flex items-center text-gray-600 hover:text-gray-900"
+                className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Dashboard
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Patient Risk Analysis</h1>
-                <p className="text-gray-600 mt-1">Identify at-risk patients and improve retention</p>
+              <div className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold">Patient Risk Analysis</h1>
+                <p className="text-gray-600 mt-1 font-medium">Identify at-risk patients and improve retention</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <button
                 onClick={loadRiskAnalysis}
                 disabled={refreshing}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-all duration-200 hover:shadow-md"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                <span>Refresh</span>
+                <span className="font-medium">Refresh</span>
               </button>
               <button
                 onClick={exportRiskReport}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
               >
                 <Download className="w-4 h-4" />
                 <span>Export Report</span>
@@ -193,58 +195,58 @@ export default function PatientRiskDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Metrics Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Patients</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.totalPatients}</p>
+                <p className="text-sm font-semibold text-gray-600 mb-2">Total Patients</p>
+                <p className="text-3xl font-bold text-gray-900">{metrics.totalPatients}</p>
               </div>
-              <div className="p-3 rounded-full bg-blue-100">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">At Risk Patients</p>
-                <p className="text-2xl font-bold text-red-600 mt-1">{metrics.atRiskPatients}</p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm font-semibold text-gray-600 mb-2">At Risk Patients</p>
+                <p className="text-3xl font-bold text-red-600">{metrics.atRiskPatients}</p>
+                <p className="text-sm text-gray-500 mt-2 font-medium">
                   {((metrics.atRiskPatients / metrics.totalPatients) * 100).toFixed(1)}% of total
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-red-100">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Engagement Rate</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">{metrics.engagementRate}%</p>
-                <p className="text-sm text-green-600 mt-1">+2.3% vs last month</p>
+                <p className="text-sm font-semibold text-gray-600 mb-2">Engagement Rate</p>
+                <p className="text-3xl font-bold text-green-600">{metrics.engagementRate}%</p>
+                <p className="text-sm text-green-600 mt-2 font-medium">+2.3% vs last month</p>
               </div>
-              <div className="p-3 rounded-full bg-green-100">
-                <Target className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Days Between Visits</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{metrics.averageDaysBetweenVisits}</p>
-                <p className="text-sm text-gray-500 mt-1">Ideal: 21-30 days</p>
+                <p className="text-sm font-semibold text-gray-600 mb-2">Avg Days Between Visits</p>
+                <p className="text-3xl font-bold text-gray-900">{metrics.averageDaysBetweenVisits}</p>
+                <p className="text-sm text-gray-500 mt-2 font-medium">Ideal: 21-30 days</p>
               </div>
-              <div className="p-3 rounded-full bg-purple-100">
-                <Clock className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>

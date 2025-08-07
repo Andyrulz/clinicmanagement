@@ -1,28 +1,228 @@
 @import "tailwindcss";
 
-/* Force white background for the entire application */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* React Big Calendar Styles */
+.rbc-calendar {
+  background: white;
+  border-radius: 8px;
 }
 
-/* Ensure white background regardless of system preference */
+.rbc-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 8px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.rbc-time-view {
+  border: 1px solid #e2e8f0;
+}
+
+.rbc-event {
+  border-radius: 4px;
+  border: none;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rbc-time-slot {
+  border-top: 1px solid #f1f5f9;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rbc-current-time-indicator {
+  background-color: #ef4444;
+  height: 2px;
+  z-index: 10;
+}
+
+.rbc-today {
+  background-color: #fef3c7;
+}
+
+.rbc-off-range-bg {
+  background-color: #f8fafc;
+}
+
+.rbc-selected {
+  background-color: #dbeafe !important;
+}
+
+/* Modern Design System Variables */
+:root {
+  /* Primary Colors */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  
+  /* Secondary Colors */
+  --secondary-50: #f8fafc;
+  --secondary-100: #f1f5f9;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+  --secondary-700: #334155;
+  
+  /* Success Colors */
+  --success-50: #f0fdf4;
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  
+  /* Warning Colors */
+  --warning-50: #fffbeb;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  
+  /* Error Colors */
+  --error-50: #fef2f2;
+  --error-500: #ef4444;
+  --error-600: #dc2626;
+  
+  /* Background */
+  --background: #ffffff;
+  --background-secondary: #f8fafc;
+  --foreground: #0f172a;
+  --foreground-secondary: #475569;
+  
+  /* Borders */
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  --gradient-secondary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+/* Modern Typography */
 html {
-  background-color: #ffffff !important;
+  background-color: var(--background) !important;
   min-height: 100vh;
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: #ffffff !important;
-  color: #171717;
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background) !important;
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure all main containers have white background */
+/* Enhanced Container Styles */
 #__next {
-  background-color: #ffffff;
+  background-color: var(--background);
   min-height: 100vh;
+}
+
+/* Modern Card Component */
+.card {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Modern Button Styles */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  opacity: 0.95;
+}
+
+.btn-secondary {
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-hover);
+  background: var(--background-secondary);
+  transform: translateY(-1px);
+}
+
+/* Modern Input Styles */
+.input-modern {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: var(--background);
+  transition: all 0.2s ease-in-out;
+  font-size: 14px;
+}
+
+.input-modern:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1);
+}
+
+/* Loading Animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-500);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-600);
 }

@@ -29,16 +29,16 @@ interface StatCardProps {
 
 function StatCard({ title, value, change, icon, color }: StatCardProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 group">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
           {change && (
-            <p className="text-sm text-green-600 mt-1">{change}</p>
+            <p className="text-sm text-green-600 mt-1 font-medium">{change}</p>
           )}
         </div>
-        <div className={`p-3 rounded-full ${color}`}>
+        <div className={`p-4 rounded-xl ${color} group-hover:scale-110 transition-transform`}>
           {icon}
         </div>
       </div>
@@ -54,9 +54,9 @@ interface ChartCardProps {
 
 function ChartCard({ title, children, action }: ChartCardProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
         {action}
       </div>
       {children}
@@ -192,17 +192,17 @@ export default function AnalyticsPage() {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto p-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
+            <div className="h-8 bg-gray-200 rounded-xl w-64 mb-8"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+                <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
               ))}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-80 bg-gray-200 rounded-lg"></div>
+                <div key={i} className="h-80 bg-gray-200 rounded-xl"></div>
               ))}
             </div>
           </div>
@@ -212,20 +212,20 @@ export default function AnalyticsPage() {
   
     if (error) {
       return (
-        <div className="max-w-7xl mx-auto p-6 flex items-center justify-center">
-          <div className="text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Error</h3>
-            <p className="mt-1 text-sm text-gray-500">{error}</p>
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => loadAnalyticsData(selectedTimeframe, customRange)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Try again
-              </button>
+        <div className="max-w-7xl mx-auto p-8 flex items-center justify-center">
+          <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Analytics</h3>
+            <p className="text-gray-600 mb-8">{error}</p>
+            <button
+              type="button"
+              onClick={() => loadAnalyticsData(selectedTimeframe, customRange)}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
+            >
+              Try again
+            </button>
           </div>
         </div>
       );
@@ -233,11 +233,13 @@ export default function AnalyticsPage() {
   
     if (!analyticsData) {
       return (
-          <div className="max-w-7xl mx-auto p-6 flex items-center justify-center">
-              <div className="text-center">
-                  <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No data available</h3>
-                  <p className="mt-1 text-sm text-gray-500">There is no analytics data for the selected period.</p>
+          <div className="max-w-7xl mx-auto p-8 flex items-center justify-center">
+              <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <AlertCircle className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No data available</h3>
+                  <p className="text-gray-600 mb-8">There is no analytics data for the selected period.</p>
                    <div className="mt-6">
                       <DateRangeSelector
                         onDateRangeChange={handleDateRangeChange}
@@ -273,28 +275,28 @@ export default function AnalyticsPage() {
         value: analyticsData.totalPatients,
         change: `+${analyticsData.newPatientsThisMonth} in ${periodLabel}`,
         icon: <Users className="w-6 h-6 text-white" />,
-        color: 'bg-blue-500'
+        color: 'bg-gradient-to-r from-blue-500 to-blue-600'
       },
       {
         title: 'Total Visits',
         value: analyticsData.totalVisits,
         change: isShortTerm && analyticsData.visitsToday > 0 ? `${analyticsData.visitsToday} today` : '',
         icon: <Calendar className="w-6 h-6 text-white" />,
-        color: 'bg-green-500'
+        color: 'bg-gradient-to-r from-green-500 to-green-600'
       },
       {
         title: `Revenue (${periodLabel})`,
         value: `₹${analyticsData.totalRevenue.toLocaleString()}`,
         change: isLongTerm ? `₹${analyticsData.revenueThisMonth.toLocaleString()} monthly avg` : '',
         icon: <DollarSign className="w-6 h-6 text-white" />,
-        color: 'bg-yellow-500'
+        color: 'bg-gradient-to-r from-emerald-500 to-emerald-600'
       },
       {
         title: 'Collection Rate',
         value: `${analyticsData.collectionRate}%`,
         change: `₹${analyticsData.pendingPayments.toLocaleString()} pending`,
         icon: <TrendingUp className="w-6 h-6 text-white" />,
-        color: 'bg-purple-500'
+        color: 'bg-gradient-to-r from-purple-500 to-purple-600'
       }
     ]
 
@@ -324,7 +326,7 @@ export default function AnalyticsPage() {
     ]
 
     return (
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-8">
         {activeTab === 'overview' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -371,15 +373,21 @@ export default function AnalyticsPage() {
             </div>
         )}
         {activeTab === 'revenue' && (
-            <div className="text-center py-12 text-gray-500">
-                <DollarSign className="w-12 h-12 mx-auto" />
-                <p className="mt-4">Revenue-specific analytics coming soon.</p>
+            <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <DollarSign className="w-8 h-8 text-emerald-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Revenue Analytics</h3>
+                <p className="text-gray-600">Revenue-specific analytics coming soon.</p>
             </div>
         )}
         {activeTab === 'clinical' && (
-            <div className="text-center py-12 text-gray-500">
-                <Activity className="w-12 h-12 mx-auto" />
-                <p className="mt-4">Clinical performance metrics coming soon.</p>
+            <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Activity className="w-8 h-8 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Clinical Performance</h3>
+                <p className="text-gray-600">Clinical performance metrics coming soon.</p>
             </div>
         )}
       </div>
@@ -394,21 +402,28 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <Link 
                 href="/dashboard"
-                className="flex items-center text-gray-600 hover:text-gray-900"
+                className="flex items-center text-gray-600 hover:text-blue-600 transition-colors group"
               >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Dashboard
+                <div className="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center mr-3 transition-colors">
+                  <ArrowLeft className="w-5 h-5" />
+                </div>
+                <span className="font-medium">Dashboard</span>
               </Link>
+              <div className="h-8 w-px bg-gray-200"></div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Analytics &amp; Reports</h1>
-                <p className="text-gray-600 mt-1">Comprehensive insights into your clinic&apos;s performance</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                  Analytics & Reports
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Comprehensive insights into your clinic&apos;s performance
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -419,7 +434,7 @@ export default function AnalyticsPage() {
               />
               <button
                 onClick={() => window.open('/dashboard/analytics/advanced', '_blank')}
-                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
               >
                 <TrendingUp className="w-4 h-4" />
                 <span>Advanced Analytics</span>
@@ -427,7 +442,7 @@ export default function AnalyticsPage() {
               <button
                 onClick={exportReport}
                 disabled={!analyticsData || loading}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 <Download className="w-4 h-4" />
                 <span>Export Report</span>
@@ -439,13 +454,13 @@ export default function AnalyticsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-1 py-2 border-b-2 transition-colors ${
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-5 h-5" />
                 <span className="font-medium">{tab.label}</span>
               </button>
             ))}

@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import AvailabilityDashboard from '@/components/availability/availability-dashboard';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 
 interface User {
   id: string;
@@ -57,10 +55,12 @@ export default function AvailabilityPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+          <p className="text-gray-600 font-medium">Loading availability dashboard...</p>
         </div>
       </div>
     );
@@ -71,43 +71,9 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/dashboard"
-                className="flex items-center text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Dashboard
-              </Link>
-              <div className="w-px h-6 bg-gray-300" />
-              <h1 className="text-xl font-semibold text-gray-900">
-                Doctor Availability
-              </h1>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-600">
-                Welcome, {user.full_name}
-              </div>
-              <div className="w-px h-6 bg-gray-300" />
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                Dashboard
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Enhanced Main Content */}
+      <main className="max-w-7xl mx-auto py-8 px-6">
         <AvailabilityDashboard
           doctorId={user.role === 'doctor' ? user.id : undefined}
           userRole={user.role}

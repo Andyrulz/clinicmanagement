@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 // Basic validation patterns
-const phoneRegex = /^[+]?[\d\s\-\(\)]{10,15}$/;
+const phoneRegex = /^[6-9]\d{9}$/; // Indian mobile number format
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Address schema
@@ -20,7 +20,7 @@ const addressSchema = z.object({
 const emergencyContactSchema = z.object({
   name: z.string().min(1, 'Emergency contact name is required').max(100),
   relationship: z.string().min(1, 'Relationship is required').max(50),
-  phone: z.string().regex(phoneRegex, 'Invalid phone number format')
+  phone: z.string().regex(phoneRegex, 'Valid emergency contact number required')
 }).partial();
 
 // Patient registration validation
@@ -31,7 +31,7 @@ export const patientRegistrationSchema = z.object({
     .regex(/^[a-zA-Z\s\.]+$/, 'Name can only contain letters, spaces, and dots'),
   
   phone: z.string()
-    .regex(phoneRegex, 'Invalid phone number format')
+    .regex(phoneRegex, 'Please enter a valid 10-digit mobile number')
     .transform((val) => val.replace(/\s+/g, '')), // Remove spaces
   
   email: z.string()

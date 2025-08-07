@@ -73,10 +73,12 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading user management...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+          <p className="text-gray-600 font-medium">Loading user management...</p>
         </div>
       </div>
     )
@@ -84,19 +86,19 @@ export default function UsersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">Access Error</h2>
-            <p className="text-red-700 mb-4">{error}</p>
-            <Link 
-              href="/dashboard"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Dashboard
-            </Link>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <X className="w-8 h-8 text-red-600" />
           </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Error</h3>
+          <p className="text-gray-600 mb-8">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     )
@@ -104,12 +106,15 @@ export default function UsersPage() {
 
   if (!userInfo) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">Unable to load user information</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ArrowLeft className="w-8 h-8 text-gray-400" />
+          </div>
+          <p className="text-gray-600 mb-8">Unable to load user information</p>
           <Link 
             href="/dashboard"
-            className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Dashboard
@@ -120,32 +125,39 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Enhanced Header */}
+      <div className="bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center gap-6">
               <Link 
                 href="/dashboard"
-                className="flex items-center text-gray-600 hover:text-gray-900 mr-4"
+                className="flex items-center text-gray-600 hover:text-blue-600 transition-colors group"
               >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Dashboard
+                <div className="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center mr-3 transition-colors">
+                  <ArrowLeft className="w-5 h-5" />
+                </div>
+                <span className="font-medium">Dashboard</span>
               </Link>
+              <div className="h-8 w-px bg-gray-200"></div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-                <p className="text-gray-600 mt-1">Manage clinic staff, doctors, and administrators</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                  User Management
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Manage clinic staff, doctors, and administrators
+                </p>
               </div>
             </div>
             
-            {/* Invite User Button */}
+            {/* Enhanced Invite User Button */}
             {userInfo && ['admin', 'manager'].includes(userInfo.currentUserRole) && (
               <button
                 onClick={() => setShowInviteForm(true)}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-5 h-5 mr-2" />
                 Invite User
               </button>
             )}
@@ -155,17 +167,17 @@ export default function UsersPage() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Invite User Modal */}
+        {/* Enhanced Invite User Modal */}
         {showInviteForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-100">
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <h2 className="text-xl font-semibold text-gray-900">Invite New User</h2>
                 <button
                   onClick={() => setShowInviteForm(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="p-6">

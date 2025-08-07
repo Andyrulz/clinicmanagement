@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import DoctorAvailabilityForm from './doctor-availability-form';
-import { GoogleStyleCalendar } from './google-style-calendar';
+import { AppointmentCalendarFallback } from '@/components/appointments/appointment-calendar-fallback';
 import { createClient } from '@/lib/supabase/client';
 
 interface AvailabilityDashboardProps {
@@ -10,23 +10,14 @@ interface AvailabilityDashboardProps {
   userRole?: string;
 }
 
-interface Doctor {
-  id: string;
-  full_name: string;
-}
-
 export default function AvailabilityDashboard({ 
   doctorId, 
   userRole = 'staff' 
 }: AvailabilityDashboardProps) {
   const [activeTab, setActiveTab] = useState<'form' | 'calendar' | 'manage'>('form');
-  const [calendarKey, setCalendarKey] = useState(0); // Force calendar refresh
   const [selectedDoctorId, setSelectedDoctorId] = useState(doctorId || '');
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<string>('');
   
   const supabase = createClient();
-  const canSelectDoctor = userRole === 'admin' || userRole === 'manager';
 
   // Update selected doctor when doctorId prop changes
   useEffect(() => {
@@ -39,10 +30,8 @@ export default function AvailabilityDashboard({
   useEffect(() => {
     const getCurrentUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setCurrentUserId(user.id);
-        }
+        await supabase.auth.getUser();
+        // User info loaded for auth purposes
       } catch (error) {
         console.error('Error getting current user:', error);
       }
@@ -51,41 +40,8 @@ export default function AvailabilityDashboard({
     getCurrentUser();
   }, [supabase]);
 
-  // Load doctors for filtering
-  useEffect(() => {
-    const loadDoctors = async () => {
-      if (!canSelectDoctor) return;
-
-      try {
-        const { data: doctorsList, error } = await supabase
-          .from('users')
-          .select('id, full_name')
-          .eq('role', 'doctor')
-          .eq('is_active', true)
-          .order('full_name');
-
-        if (error) {
-          console.error('Error loading doctors:', error);
-          return;
-        }
-
-        setDoctors(doctorsList || []);
-        
-        // Auto-select first doctor if none is selected and we have doctors
-        if (!selectedDoctorId && doctorsList && doctorsList.length > 0) {
-          setSelectedDoctorId(doctorsList[0].id);
-        }
-      } catch (error) {
-        console.error('Error loading doctors:', error);
-      }
-    };
-
-    loadDoctors();
-  }, [canSelectDoctor, supabase, selectedDoctorId]);
-
   const handleFormSuccess = () => {
-    // Force calendar refresh and switch to calendar tab
-    setCalendarKey(prev => prev + 1);
+    // Switch to calendar tab after form success
     setActiveTab('calendar');
   };
 
@@ -104,38 +60,27 @@ export default function AvailabilityDashboard({
       case 'calendar':
         return (
           <div className="space-y-4">
-            {/* Doctor Filter */}
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Doctor Availability Calendar</h2>
-              {canSelectDoctor && doctors.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <label htmlFor="doctor-filter" className="text-sm font-medium text-gray-700">
-                    Doctor:
-                  </label>
-                  <select
-                    id="doctor-filter"
-                    value={selectedDoctorId}
-                    onChange={(e) => {
-                      setSelectedDoctorId(e.target.value);
-                      setCalendarKey(prev => prev + 1); // Refresh calendar
-                    }}
-                    className="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  >
-                    {doctors.map((doctor) => (
-                      <option key={doctor.id} value={doctor.id}>
-                        {doctor.full_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+            {/* Header */}
+            <div>
+              <h2 className="text-xl font-semibold">Appointment Calendar & Availability</h2>
+              <p className="text-gray-600 text-sm mt-1">
+                View appointments, schedule availability, and create new appointments for doctors
+              </p>
             </div>
             
-            <GoogleStyleCalendar
-              selectedDoctorId={selectedDoctorId || undefined}
-              onAvailabilityCreated={() => setCalendarKey(calendarKey + 1)}
-              userRole={userRole}
-              currentUserId={currentUserId}
+            {/* Unified Calendar for Appointments and Availability */}
+            <AppointmentCalendarFallback
+              className="mt-4"
+              onCreateAppointment={(appointment) => {
+                // Redirect to appointment creation with pre-filled data
+                window.location.href = `/dashboard/visits/create?doctor_id=${appointment.doctor_id}&visit_date=${appointment.appointment_date}&visit_time=${appointment.appointment_time}`;
+              }}
+              onAppointmentSelect={(event) => {
+                // Redirect to appointment/visit details
+                if (event.appointmentId) {
+                  window.location.href = `/dashboard/visits/${event.appointmentId}`;
+                }
+              }}
             />
           </div>
         );
